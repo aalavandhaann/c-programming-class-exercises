@@ -14,7 +14,6 @@ enum MenuChoice {
     CreateStudent = 1, 
     FindBySAPID, 
     FindByName, 
-    RefreshDatabase,
     PrintAllStudents,
     Quit
 };
@@ -60,7 +59,7 @@ Stu* readAndLoadFromDatabase(char databaseFile[]) {
         token = strtok(line, ",");
 
         while(token != NULL){
-            printf("Value: %s, %i\n", token, columnIndex);
+            // printf("Value: %s, %i\n", token, columnIndex);
             if(columnIndex == 0){
                 strcpy(temporaryStudentVariable.name, token);
             }
@@ -85,15 +84,25 @@ void writeNewStudent(char databaseFile[]){
     Stu student;
     FILE *fp = fopen(databaseFile, "a");
     char newLineContent[MAX_CHARACTERS_IN_LINE]; 
+
+    if(fp == NULL){
+        Stu* records = readAndLoadFromDatabase(databaseFile);// This will ensure the file is created if id does not exist
+        free(records);
+    }
+
+    printf("\n\n\n");
+    printf("\n############################################################");
+    printf("\n\t\tWrite New Student Record Interface");
+    printf("\n############################################################");
     printf("\nEnter name of the student: ");
-    scanf("%s", student.name);
+    scanf("%19s", student.name);// Take only the first 19 characters of the input to be safe
     printf("\nEnter sapid of the student: ");
     scanf("%i", &student.sapid);
     printf("\nEnter semester of the student: ");
     scanf("%i", &student.semester);
     
     sprintf(newLineContent, "%s,%i,%i\n", student.name, student.sapid, student.semester);
-    fprintf(fp, newLineContent);
+    fprintf(fp, "%s", newLineContent);
     fclose(fp);
 }
 
@@ -109,25 +118,40 @@ void printAllStudentRecords(char databaseFile[]){
     unsigned int totalStudentRecords = getTotalRecords(databaseFile);
     Stu* students = readAndLoadFromDatabase(databaseFile);
 
+    printf("\n############################################################");
+    printf("\n\t\tCURRENT STUDENT RECORDS");
+    printf("\n############################################################");
+    
     for(int i = 0; i < totalStudentRecords; i++){
         printStudent(students[i]);
     }
+}
+
+void findStudentBySAPID(){
+
+}
+
+void findStudentByName(){
+
+}
+
+void findStudentBySemester(){
+    
 }
 
 int main()
 {
     enum MenuChoice menuChoice = CreateStudent;
     do{
-        printf("\n##############################");
+        printf("\n############################################################");
         printf("\n\t\tSTUDENT RECORDS SOFTWARE");
-        printf("\n##############################");
+        printf("\n############################################################");
         printf("\nWhat do you want to do? ");
         printf("\n1 - Create a New Student Record");
         printf("\n2 - Find a Student Record by sapid");
         printf("\n3 - Find a Student Record by partial name search");
-        printf("\n4 - Reload Database");
-        printf("\n5 - Print All Students");
-        printf("\n6 - Quit Program");
+        printf("\n4 - Print All Students");
+        printf("\n5 - Quit Program");
         printf("\nEnter your choice:  ");
         scanf("%d", &menuChoice);
 
@@ -135,9 +159,6 @@ int main()
         {
             case CreateStudent:                
                 writeNewStudent(DATABASE_FILE_NAME);
-                break;
-            case RefreshDatabase:
-                readAndLoadFromDatabase(DATABASE_FILE_NAME);
                 break;
             case PrintAllStudents:
                 printAllStudentRecords(DATABASE_FILE_NAME);
